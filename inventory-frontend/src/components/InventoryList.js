@@ -64,7 +64,7 @@ const InventoryList = () => {
 
   return (
     <Container sx={{ mt: 4 }}>
-      <Typography variant="h4" gutterBottom>Inventory</Typography>
+      <Typography variant="h4" gutterBottom>My Inventory</Typography>
 
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
         <TextField
@@ -91,22 +91,23 @@ const InventoryList = () => {
           </TableHead>
           <TableBody>
             {filteredProducts.map(product => (
-              <TableRow key={product._id}>
+              <TableRow key={product.id}>
                 <TableCell>{product.item_name}</TableCell>
                 <TableCell>{product.category}</TableCell>
                 <TableCell>{product.price}</TableCell>
                 <TableCell>{product.quantity}</TableCell>
                 <TableCell>{product.purchase_date}</TableCell>
                 <TableCell>
-                  <IconButton color="primary" onClick={() => navigate(`/edit/${product._id}`)}>
+                  <IconButton color="primary" onClick={() => navigate(`/edit/${product.id}`)}>
                     <Edit />
                   </IconButton>
-                  <IconButton color="error" onClick={() => handleDelete(product._id)}>
+                  <IconButton color="error" onClick={() => handleDelete(product.id)}>
                     <Delete />
                   </IconButton>
                 </TableCell>
               </TableRow>
             ))}
+
             {filteredProducts.length === 0 && (
               <TableRow>
                 <TableCell colSpan={6} align="center">
@@ -114,7 +115,8 @@ const InventoryList = () => {
                 </TableCell>
               </TableRow>
             )}
-          </TableBody>
+</TableBody>
+
         </Table>
       </TableContainer>
 

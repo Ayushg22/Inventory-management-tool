@@ -19,21 +19,22 @@ const Login = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await axios.post('http://localhost:5000/api/login', form);
-      const token = response.data.access_token;
+  e.preventDefault();
+  try {
+    const response = await axios.post('http://localhost:5000/api/login', form);
+    const token = response.data.access_token;
+    const user = response.data.user; // Ensure backend sends this!
 
-      // Save the token using utility
-      setToken(token);
+    setToken(token); // still storing token as before
+    localStorage.setItem('user', JSON.stringify(user)); // ✅ NEW LINE
 
-      // Redirect to inventory page
-      navigate('/inventory');
-    } catch (err) {
-      console.error('Login failed:', err.response?.data || err.message);
-      alert('Invalid credentials. Please try again.');
-    }
-  };
+    navigate('/inventory');
+  } catch (err) {
+    console.error('Login failed:', err.response?.data || err.message);
+    alert('Invalid credentials. Please try again.');
+  }
+};
+
 
   return (
     <Container maxWidth="sm">

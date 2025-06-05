@@ -18,38 +18,49 @@ const EditProduct = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Fetch product data on mount
-  useEffect(() => {
-    axios.get(`http://localhost:5000/api/products/${id}`)
-      .then(res => {
-        setFormData({
-          item_name: res.data.item_name,
-          price: res.data.price,
-          quantity: res.data.quantity,
-          purchase_date: res.data.purchase_date
-        });
-      })
-      .catch(() => setError('Failed to fetch product data'));
-  }, [id]);
+  const token = localStorage.getItem('token');
 
-  const handleChange = (e) => {
+useEffect(() => {
+  axios.get(`http://localhost:5000/api/products/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  })
+    .then(res => {
+      setFormData({
+        item_name: res.data.item_name,
+        price: res.data.price,
+        quantity: res.data.quantity,
+        purchase_date: res.data.purchase_date,
+        category: res.data.category
+      });
+    })
+    .catch(() => setError('Failed to fetch product data'));
+}, [id]);
+
+ const handleChange = (e) => {
     setFormData({...formData, [e.target.name]: e.target.value});
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError('');
+  setLoading(true);
 
-    try {
-      await axios.put(`http://localhost:5000/api/products/${id}`, formData);
-      setLoading(false);
-      navigate('/inventory'); // Redirect after success
-    } catch {
-      setLoading(false);
-      setError('Failed to update product. Please try again.');
-    }
-  };
+  try {
+    await axios.put(`http://localhost:5000/api/products/${id}`, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    setLoading(false);
+    navigate('/inventory');
+  } catch {
+    setLoading(false);
+    setError('Failed to update product. Please try again.');
+  }
+};
+
 
   return (
     <Container maxWidth="sm" sx={{ mt: 4 }}>
