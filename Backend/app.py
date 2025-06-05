@@ -1,3 +1,4 @@
+from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
@@ -10,6 +11,7 @@ from google.cloud import firestore
 from google.cloud.firestore_v1 import FieldFilter
 
 
+load_dotenv()
 # Initialize Flask
 app = Flask(__name__)
 CORS(app)
@@ -18,7 +20,7 @@ app.config["JWT_SECRET_KEY"] = "your-secret-key"
 jwt = JWTManager(app)
 
 # Initialize Firestore
-cred = credentials.Certificate("nice-height-460409-m5-a7922d570346.json")
+cred = credentials.Certificate("nice-height-460409-m5-07d79cfef52b.json")
 firebase_admin.initialize_app(cred)
 db = firestore.Client()
 collection_products = db.collection('products')
@@ -94,8 +96,6 @@ def add_product():
 def get_inventory():
     try:
         user_id = get_jwt_identity()
-        print(f"[DEBUG] Fetching products for user: {user_id}")  # 👈 Add this line
-
         products = collection_products.where(filter=FieldFilter("user_id", "==", user_id)).stream()
         product_list = []
         total_value = 0
