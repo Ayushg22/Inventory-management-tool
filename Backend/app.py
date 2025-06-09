@@ -9,7 +9,7 @@ from firebase_admin import credentials, firestore
 import uuid
 from google.cloud import firestore
 from google.cloud.firestore_v1 import FieldFilter
-
+import os
 
 load_dotenv()
 # Initialize Flask
@@ -20,13 +20,14 @@ app.config["JWT_SECRET_KEY"] = "your-secret-key"
 jwt = JWTManager(app)
 
 # Initialize Firestore
-cred = credentials.Certificate("nice-height-460409-m5-07d79cfef52b.json")
+cred_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+cred = credentials.Certificate(cred_path)
 firebase_admin.initialize_app(cred)
 db = firestore.Client()
 collection_products = db.collection('products')
 collection_users = db.collection('users')
 
-# ================== USER ROUTES =======================
+
 
 @app.route('/api/register', methods=['POST'])
 def register():
@@ -68,7 +69,7 @@ def login():
         }), 200
     return jsonify({"error": "Invalid credentials"}), 401
 
-# ================== PRODUCT ROUTES =======================
+
 
 @app.route('/api/products', methods=['POST'])
 @jwt_required()
@@ -113,7 +114,7 @@ def get_inventory():
         }), 200
 
     except Exception as e:
-        print(f"[ERROR] {str(e)}")  # 👈 Log the error
+        print(f"[ERROR] {str(e)}")  
         return jsonify({"error": str(e)}), 500
 
 
@@ -165,4 +166,4 @@ def delete_product(product_id):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
