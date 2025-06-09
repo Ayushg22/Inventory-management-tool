@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./Backend
+    image: backend:latest
+    container_name: flask-backend
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+
+  frontend:
+    image: inventory-front:latest
+    container_name: react-frontend
+    ports:
+      - "3000:80"
+    restart: unless-stopped
