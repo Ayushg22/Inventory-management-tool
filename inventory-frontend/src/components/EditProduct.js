@@ -1,71 +1,83 @@
 // src/components/EditProduct.js
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { TextField, Button, Container, Typography, Box, Alert } from '@mui/material';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { TextField, Button, Container, Typography, Box, Alert } from "@mui/material";
+import axiosInstance, { logout } from "../axiosInstance";
 
 const EditProduct = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    item_name: '',
-    price: '',
-    quantity: '',
-    purchase_date: '',
-    category: ''
+    item_name: "",
+    buy_price: "",
+    selling_price: "",
+    quantity: "",
+    purchase_date: "",
+    category: ""
   });
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const token = localStorage.getItem('token');
+  // ✅ Fetch product data
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const res = await axiosInstance.get(`/products/${id}`);
+        setFormData({
+          item_name: res.data.item_name,
+          buy_price: res.data.buy_price,
+          selling_price: res.data.selling_price,
+          quantity: res.data.quantity,
+          purchase_date: res.data.purchase_date,
+          category: res.data.category
+        });
+      } catch (err) {
+        console.error(err.response?.data || err.message);
+        if (err.response?.status === 401) {
+          logout();
+        } else {
+          setError("Failed to fetch product data.");
+        }
+      }
+    };
 
-useEffect(() => {
-  axios.get(`http://localhost:5000/api/products/${id}`, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  })
-    .then(res => {
-      setFormData({
-        item_name: res.data.item_name,
-        price: res.data.price,
-        quantity: res.data.quantity,
-        purchase_date: res.data.purchase_date,
-        category: res.data.category
-      });
-    })
-    .catch(() => setError('Failed to fetch product data'));
-}, [id]);
+    fetchProduct();
+  }, [id]);
 
- const handleChange = (e) => {
-    setFormData({...formData, [e.target.name]: e.target.value});
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError('');
-  setLoading(true);
+  // ✅ Submit update
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
-  try {
-    await axios.put(`http://localhost:5000/api/products/${id}`, formData, {
-      headers: {
-        Authorization: `Bearer ${token}`
+    try {
+      await axiosInstance.put(`/products/${id}`, formData);
+      setLoading(false);
+      navigate("/products");
+    } catch (err) {
+      setLoading(false);
+      console.error(err.response?.data || err.message);
+      if (err.response?.status === 401) {
+        logout();
+      } else {
+        setError("Failed to update product. Please try again.");
       }
-    });
-    setLoading(false);
-    navigate('/inventory');
-  } catch {
-    setLoading(false);
-    setError('Failed to update product. Please try again.');
-  }
-};
-
+    }
+  };
 
   return (
     <Container maxWidth="sm" sx={{ mt: 4 }}>
-      <Typography variant="h4" gutterBottom>Edit Product</Typography>
+      <Typography variant="h4" gutterBottom>
+        Edit Product
+      </Typography>
+
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+
       <Box component="form" onSubmit={handleSubmit} noValidate>
         <TextField
           label="Item Name"
@@ -76,17 +88,31 @@ const handleSubmit = async (e) => {
           onChange={handleChange}
           required
         />
+
         <TextField
-          label="Price"
-          name="price"
+          label="Buying Price"
+          name="buy_price"
           type="number"
           fullWidth
           margin="normal"
-          value={formData.price}
+          value={formData.buy_price}
           onChange={handleChange}
           required
           inputProps={{ min: 0, step: "0.01" }}
         />
+
+        <TextField
+          label="Selling Price"
+          name="selling_price"
+          type="number"
+          fullWidth
+          margin="normal"
+          value={formData.selling_price}
+          onChange={handleChange}
+          required
+          inputProps={{ min: 0, step: "0.01" }}
+        />
+
         <TextField
           label="Quantity"
           name="quantity"
@@ -98,6 +124,7 @@ const handleSubmit = async (e) => {
           required
           inputProps={{ min: 0 }}
         />
+
         <TextField
           label="Purchase Date"
           name="purchase_date"
@@ -109,14 +136,15 @@ const handleSubmit = async (e) => {
           required
           InputLabelProps={{ shrink: true }}
         />
+
         <TextField
-            label="Category"
-            name="category"
-            fullWidth
-            margin="normal"
-            value={formData.category}
-            onChange={handleChange}
-            required
+          label="Category"
+          name="category"
+          fullWidth
+          margin="normal"
+          value={formData.category}
+          onChange={handleChange}
+          required
         />
 
         <Button
@@ -127,7 +155,7 @@ const handleSubmit = async (e) => {
           sx={{ mt: 3 }}
           fullWidth
         >
-          {loading ? 'Updating...' : 'Update Product'}
+          {loading ? "Updating..." : "Update Product"}
         </Button>
       </Box>
     </Container>

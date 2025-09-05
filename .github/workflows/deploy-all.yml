@@ -1,0 +1,132 @@
+name: Deploy Full Stack Application
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch: # Allow manual trigger
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  BACKEND_SERVICE: inventory-api
+  REGION: asia-south1
+
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.modified, 'Backend/') || contains(github.event.head_commit.added, 'Backend/') || github.event_name == 'workflow_dispatch'
+    
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Google Auth
+      id: auth
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+
+    - name: Configure Docker
+      run: gcloud auth configure-docker
+
+    - name: Build and Push Backend Container
+      run: |
+        cd Backend
+        gcloud builds submit --tag gcr.io/$PROJECT_ID/$BACKEND_SERVICE
+
+    - name: Deploy Backend to Cloud Run
+      run: |
+        gcloud run deploy $BACKEND_SERVICE \
+          --image gcr.io/$PROJECT_ID/$BACKEND_SERVICE \
+          --platform managed \
+          --region $REGION \
+          --allow-unauthenticated \
+          --port 8080 \
+          --memory 1Gi \
+          --cpu 1 \
+          --max-instances 10 \
+          --set-env-vars "CORS_ORIGINS=https://nice-height-460409-m5.web.app" \
+          --set-env-vars "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}"
+
+    - name: Get Backend URL
+      id: backend-url
+      run: |
+        BACKEND_URL=$(gcloud run services describe $BACKEND_SERVICE --region=$REGION --format="value(status.url)")
+        echo "url=$BACKEND_URL" >> $GITHUB_OUTPUT
+        echo "Backend deployed at: $BACKEND_URL"
+
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.modified, 'inventory-frontend/') || contains(github.event.head_commit.added, 'inventory-frontend/') || github.event_name == 'workflow_dispatch'
+    needs: deploy-backend
+    
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: inventory-frontend/package-lock.json
+
+    - name: Install dependencies
+      run: |
+        cd inventory-frontend
+        npm ci
+
+    - name: Build React app
+      run: |
+        cd inventory-frontend
+        npm run build
+
+    - name: Google Auth
+      id: auth
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+
+    - name: Set up Firebase CLI
+      run: |
+        npm install -g firebase-tools
+
+    - name: Deploy Frontend to Firebase
+      run: |
+        cd inventory-frontend
+        export GOOGLE_APPLICATION_CREDENTIALS="${{ secrets.GCP_SA_KEY }}"
+        firebase deploy --only hosting --project ${{ secrets.GCP_PROJECT_ID }}
+
+    - name: Show Deployment URLs
+      run: |
+        echo "🎉 Deployment Complete!"
+        echo "Frontend: https://nice-height-460409-m5.web.app"
+        echo "Backend: ${{ needs.deploy-backend.outputs.url || 'https://inventory-api-78435570544.asia-south1.run.app' }}"
+
+  notify:
+    runs-on: ubuntu-latest
+    needs: [deploy-backend, deploy-frontend]
+    if: always()
+    
+    steps:
+    - name: Deployment Status
+      run: |
+        if [[ "${{ needs.deploy-backend.result }}" == "success" || "${{ needs.deploy-frontend.result }}" == "success" ]]; then
+          echo "✅ Deployment successful!"
+        else
+          echo "❌ Deployment failed!"
+          exit 1
+        fi

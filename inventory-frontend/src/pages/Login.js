@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import {
   Container,
@@ -9,32 +8,44 @@ import {
   Box,
   Paper,
 } from '@mui/material';
-import { setToken } from '../utils/auth'; // Make sure this exists
+import axiosInstance from '../axiosInstance';
+import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
   const [form, setForm] = useState({ email: '', password: '' });
+  const [error, setError] = useState('');
+  const [showCreateBtn, setShowCreateBtn] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    const response = await axios.post('http://localhost:5000/api/login', form);
-    const token = response.data.access_token;
-    const user = response.data.user; // Ensure backend sends this!
+    e.preventDefault();
+    setError('');
+    setShowCreateBtn(false);
 
-    setToken(token); // still storing token as before
-    localStorage.setItem('user', JSON.stringify(user)); // ✅ NEW LINE
+    try {
+      const response = await axiosInstance.post('/login', form);
+      const accessToken = response.data.access_token;
+      const refreshToken = response.data.refresh_token;
+      const user = response.data.user;
 
-    navigate('/inventory');
-  } catch (err) {
-    console.error('Login failed:', err.response?.data || err.message);
-    alert('Invalid credentials. Please try again.');
-  }
-};
+      login(accessToken, refreshToken, user);
+      navigate('/');
+    } catch (err) {
+      const status = err.response?.status;
+      const errorMsg = err.response?.data?.error || 'Login failed';
 
+      console.error('Login failed:', err.response?.data || err.message);
+      setError(errorMsg);
+
+      if (status === 404 && err.response?.data?.redirect === '/register') {
+        setShowCreateBtn(true);
+      }
+    }
+  };
 
   return (
     <Container maxWidth="sm">
@@ -82,6 +93,37 @@ const Login = () => {
           >
             Login
           </Button>
+
+          <Typography align="center" sx={{ mt: 2 }}>
+            New here?{' '}
+            <Button
+              variant="text"
+              color="primary"
+              onClick={() => navigate('/register')}
+              sx={{ textTransform: 'none', p: 0, minWidth: 'auto' }}
+            >
+              Register
+            </Button>{' '}
+            first.
+          </Typography>
+
+          {showCreateBtn && (
+            <Button
+              variant="outlined"
+              color="secondary"
+              fullWidth
+              sx={{ mt: 2 }}
+              onClick={() => navigate('/register')}
+            >
+              Create Account
+            </Button>
+          )}
+
+          {error && (
+            <Typography color="error" align="center" sx={{ mt: 2 }}>
+              {error}
+            </Typography>
+          )}
         </Box>
       </Paper>
     </Container>

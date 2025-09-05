@@ -1,26 +1,18 @@
-# Use official Python base image
-FROM python:3.10
+# Use a lightweight Python image
+FROM python:3.10-slim
 
-# Set working directory in container
+# Set working directory
 WORKDIR /app
 
-# Copy all app code
-COPY . .
-
-# Copy GCP credentials file (already done correctly)
-COPY nice-height-460409-m5-07d79cfef52b.json /app/credentials.json
-
-# Set environment variable for Google Cloud SDK
-ENV GOOGLE_APPLICATION_CREDENTIALS=/app/credentials.json
-
 # Install dependencies
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Make Flask listen on all interfaces
-ENV FLASK_RUN_HOST=0.0.0.0
+# Copy app files
+COPY . .
 
-# Optional: explicitly expose the port
-EXPOSE 5000
+# Expose Cloud Run default port
+ENV PORT=8080
 
-# Run the Flask app
-CMD ["python", "app.py"]
+# Start with Gunicorn (production WSGI server)
+CMD ["gunicorn", "-b", "0.0.0.0:8080", "app:app"]

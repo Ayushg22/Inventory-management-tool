@@ -1,13 +1,14 @@
 // src/pages/Register.js
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import {
   Container, TextField, Button, Typography, Box, Paper
 } from '@mui/material';
+import axiosInstance from '../axiosInstance'; 
 
 const Register = () => {
   const [form, setForm] = useState({ username: '', email: '', password: '' });
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleChange = (e) =>
@@ -15,17 +16,20 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+
     try {
-      await axios.post('http://localhost:5000/api/register', form);
+      await axiosInstance.post('/register', form); // Use axiosInstance
       navigate('/login');
     } catch (err) {
       console.error('Registration failed:', err.response?.data || err.message);
+      setError(err.response?.data?.error || 'Registration failed');
     }
   };
 
   return (
     <Container maxWidth="sm">
-      <Paper elevation={3} sx={{ padding: 4, marginTop: 8 }}>
+      <Paper elevation={3} sx={{ padding: 4, marginTop: 8, bgcolor: '#fff8e1', borderRadius: 3 }}>
         <Typography variant="h4" align="center" gutterBottom>
           Register
         </Typography>
@@ -43,6 +47,7 @@ const Register = () => {
             fullWidth
             label="Email"
             name="email"
+            type="email"
             value={form.email}
             onChange={handleChange}
             margin="normal"
@@ -61,6 +66,12 @@ const Register = () => {
           <Button type="submit" fullWidth variant="contained" sx={{ mt: 2 }}>
             Register
           </Button>
+
+          {error && (
+            <Typography color="error" align="center" sx={{ mt: 2 }}>
+              {error}
+            </Typography>
+          )}
         </Box>
       </Paper>
     </Container>
