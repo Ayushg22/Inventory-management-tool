@@ -43,7 +43,9 @@ jobs:
     - name: Build and Push Container
       run: |
         cd Backend
-        gcloud builds submit --tag gcr.io/$PROJECT_ID/$SERVICE_NAME --no-stream --async
+        gcloud builds submit --tag gcr.io/$PROJECT_ID/$SERVICE_NAME --async > build_output.txt
+        BUILD_ID=$(grep -oP 'builds/\K[0-9a-f-]+' build_output.txt)
+        gcloud builds wait $BUILD_ID
 
     - name: Deploy to Cloud Run
       run: |
