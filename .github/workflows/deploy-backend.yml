@@ -43,7 +43,7 @@ jobs:
     - name: Build and Push Container
       run: |
         cd Backend
-        gcloud builds submit --tag gcr.io/$PROJECT_ID/$SERVICE_NAME
+        gcloud builds submit --tag gcr.io/$PROJECT_ID/$SERVICE_NAME --no-stream --async
 
     - name: Deploy to Cloud Run
       run: |
