@@ -107,7 +107,7 @@ jobs:
     - name: Deploy Frontend to Firebase
       run: |
         cd inventory-frontend
-        export GOOGLE_APPLICATION_CREDENTIALS="${{ secrets.GCP_SA_KEY }}"
+        gcloud auth application-default login --quiet
         firebase deploy --only hosting --project ${{ secrets.GCP_PROJECT_ID }}
 
     - name: Show Deployment URLs

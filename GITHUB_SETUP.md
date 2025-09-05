@@ -50,6 +50,7 @@ Add the following roles to your service account:
 3. Click **Add Key** > **Create new key**
 4. Choose **JSON** format
 5. Download the key file
+6. **Important:** Copy the entire contents of the JSON file (including all newlines and formatting)
 
 ### Step 4: ~~Get Firebase Token~~ (No longer needed)
 
@@ -118,7 +119,7 @@ The repository includes three workflow files:
 2. **Firebase Deployment Failed**
    - Verify service account has Firebase Admin role
    - Check Firebase project configuration
-   - Ensure GOOGLE_APPLICATION_CREDENTIALS is set correctly
+   - Ensure the service account key is properly formatted in GitHub secrets
 
 3. **Build Failed**
    - Check build logs in GitHub Actions
