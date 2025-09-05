@@ -121,6 +121,7 @@ firebase-debug.*.log
 *.json
 !package.json
 !package-lock.json
+!firebase.json
 
 # Service account keys
 *service-account*.json
