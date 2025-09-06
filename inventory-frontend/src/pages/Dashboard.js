@@ -8,7 +8,7 @@ import {
   CardContent,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import axiosInstance from "../utils/axiosInstance"; // 🔑 axios setup with JWT
+import axiosInstance from "../axiosInstance"; // 🔑 axios setup with JWT
 
 const Dashboard = () => {
   const navigate = useNavigate();
