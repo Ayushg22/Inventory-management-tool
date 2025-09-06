@@ -45,6 +45,9 @@ const Dashboard = () => {
             .filter((d) => d.date.startsWith(today.slice(0, 7)))
             .reduce((sum, d) => sum + d.sales, 0)
         );
+        
+        // Format with commas
+        const formattedRevenueMonth = revenueMonth.toLocaleString();
 
         const bestSeller =
           topProducts.length > 0
