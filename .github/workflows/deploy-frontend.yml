@@ -2,12 +2,12 @@ name: Deploy Frontend to Firebase
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main, master , feature ]
     paths:
       - 'inventory-frontend/**'
       - '.github/workflows/deploy-frontend.yml'
   pull_request:
-    branches: [ main, master ]
+    branches: [ main, master , feature ]
     paths:
       - 'inventory-frontend/**'
 
