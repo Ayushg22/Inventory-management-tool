@@ -6,6 +6,8 @@ import {
   Paper,
   Card,
   CardContent,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../axiosInstance"; // 🔑 axios setup with JWT
@@ -23,6 +25,17 @@ const Dashboard = () => {
 
   // 🔹 State for recent activity
   const [recentSales, setRecentSales] = useState([]);
+
+  // 🔹 State for alerts
+  const [alert, setAlert] = useState({
+    open: false,
+    type: "success", // success | error | warning | info
+    message: "",
+  });
+
+  const showAlert = (type, message) => {
+    setAlert({ open: true, type, message });
+  };
 
   useEffect(() => {
     const fetchStatsAndActivity = async () => {
@@ -68,8 +81,13 @@ const Dashboard = () => {
           .slice(0, 5);
 
         setRecentSales(salesList);
+
+        // 🎉 Success alert
+        showAlert("success", "Dashboard data loaded successfully ✅");
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
+        // ❌ Error alert
+        showAlert("error", "Failed to load dashboard data ❌");
       }
     };
 
@@ -97,7 +115,9 @@ const Dashboard = () => {
             <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
               <CardContent>
                 <Typography variant="h6">📦 Products</Typography>
-                <Typography variant="h4">{stats.totalProducts.toLocaleString()}</Typography>
+                <Typography variant="h4">
+                  {stats.totalProducts.toLocaleString()}
+                </Typography>
                 <Typography color="text.secondary">In stock</Typography>
               </CardContent>
             </Card>
@@ -107,7 +127,9 @@ const Dashboard = () => {
             <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
               <CardContent>
                 <Typography variant="h6">💰 Sales Today</Typography>
-                <Typography variant="h4">₹{stats.salesToday.toLocaleString()}</Typography>
+                <Typography variant="h4">
+                  ₹{stats.salesToday.toLocaleString()}
+                </Typography>
                 <Typography color="text.secondary">vs yesterday</Typography>
               </CardContent>
             </Card>
@@ -117,7 +139,9 @@ const Dashboard = () => {
             <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
               <CardContent>
                 <Typography variant="h6">📈 Revenue</Typography>
-                <Typography variant="h4">₹{stats.revenueMonth.toLocaleString()}</Typography>
+                <Typography variant="h4">
+                  ₹{stats.revenueMonth.toLocaleString()}
+                </Typography>
                 <Typography color="text.secondary">This month</Typography>
               </CardContent>
             </Card>
@@ -229,11 +253,17 @@ const Dashboard = () => {
               recentSales.map((sale) => (
                 <Box key={sale.id} mb={1}>
                   <Typography variant="body2">
-                    ✔️ Sale recorded on {sale.date} — ₹{sale.total_amount.toLocaleString()}
+                    ✔️ Sale recorded on {sale.date} — ₹
+                    {sale.total_amount.toLocaleString()}
                   </Typography>
                   {sale.items.slice(0, 2).map((item, idx) => (
-                    <Typography key={idx} variant="body2" color="text.secondary">
-                      • {item.item_name} ({item.quantity_sold.toLocaleString()} units)
+                    <Typography
+                      key={idx}
+                      variant="body2"
+                      color="text.secondary"
+                    >
+                      • {item.item_name} ({item.quantity_sold.toLocaleString()}{" "}
+                      units)
                     </Typography>
                   ))}
                 </Box>
@@ -262,6 +292,23 @@ const Dashboard = () => {
           © {new Date().getFullYear()} Inventory Manager. All rights reserved.
         </Typography>
       </Box>
+
+      {/* ✅ Alerts */}
+      <Snackbar
+        open={alert.open}
+        autoHideDuration={4000}
+        onClose={() => setAlert({ ...alert, open: false })}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setAlert({ ...alert, open: false })}
+          severity={alert.type}
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {alert.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
