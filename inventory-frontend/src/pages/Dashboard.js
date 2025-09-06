@@ -95,49 +95,47 @@ const Dashboard = () => {
         </Typography>
 
         {/* ✅ Stats Section */}
-        <Grid container spacing={3} sx={{ mb: 4 }}>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
-              <CardContent>
-                <Typography variant="h6">📦 Products</Typography>
-                <Typography variant="h4">{stats.totalProducts}</Typography>
-                <Typography color="text.secondary">In stock</Typography>
-              </CardContent>
-            </Card>
-          </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+  <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
+    <CardContent>
+      <Typography variant="h6">📦 Products</Typography>
+      <Typography variant="h4">{stats.totalProducts.toLocaleString()}</Typography>
+      <Typography color="text.secondary">In stock</Typography>
+    </CardContent>
+  </Card>
+</Grid>
 
-          <Grid item xs={12} sm={6} md={3}>
-            <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
-              <CardContent>
-                <Typography variant="h6">💰 Sales Today</Typography>
-                <Typography variant="h4">₹{stats.salesToday}</Typography>
-                <Typography color="text.secondary">vs yesterday</Typography>
-              </CardContent>
-            </Card>
-          </Grid>
+<Grid item xs={12} sm={6} md={3}>
+  <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
+    <CardContent>
+      <Typography variant="h6">💰 Sales Today</Typography>
+      <Typography variant="h4">₹{stats.salesToday.toLocaleString()}</Typography>
+      <Typography color="text.secondary">vs yesterday</Typography>
+    </CardContent>
+  </Card>
+</Grid>
 
-          <Grid item xs={12} sm={6} md={3}>
-            <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
-              <CardContent>
-                <Typography variant="h6">📈 Revenue</Typography>
-                <Typography variant="h4">₹{stats.revenueMonth}</Typography>
-                <Typography color="text.secondary">This month</Typography>
-              </CardContent>
-            </Card>
-          </Grid>
+<Grid item xs={12} sm={6} md={3}>
+  <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
+    <CardContent>
+      <Typography variant="h6">📈 Revenue</Typography>
+      <Typography variant="h4">₹{stats.revenueMonth.toLocaleString()}</Typography>
+      <Typography color="text.secondary">This month</Typography>
+    </CardContent>
+  </Card>
+</Grid>
 
-          <Grid item xs={12} sm={6} md={3}>
-            <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
-              <CardContent>
-                <Typography variant="h6">🏆 Best Seller</Typography>
-                <Typography variant="h4">{stats.bestSeller.name}</Typography>
-                <Typography color="text.secondary">
-                  {stats.bestSeller.quantity} units sold
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
+<Grid item xs={12} sm={6} md={3}>
+  <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
+    <CardContent>
+      <Typography variant="h6">🏆 Best Seller</Typography>
+      <Typography variant="h4">{stats.bestSeller.name}</Typography>
+      <Typography color="text.secondary">
+        {stats.bestSeller.quantity.toLocaleString()} units sold
+      </Typography>
+    </CardContent>
+  </Card>
+</Grid>
 
         {/* ✅ Action Buttons */}
         <Grid container spacing={3}>
