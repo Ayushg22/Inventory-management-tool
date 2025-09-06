@@ -440,11 +440,14 @@ def get_sales_summary():
             return jsonify(cached), 200
 
         today = datetime.utcnow().date()
-        thirty_days_ago = today - timedelta(days=30)
+        yesterday = today - timedelta(days=1)
 
         sales_docs = collection_sales.where("user_id", "==", user_id).stream()
         daily_summary = {}
         product_summary = {}
+
+        today_sales, today_profit, today_items = 0, 0, 0
+        yesterday_sales = 0
 
         for sale in sales_docs:
             data = sale.to_dict()
@@ -458,6 +461,15 @@ def get_sales_summary():
             daily_summary[date]["sales"] += total_amount
             daily_summary[date]["profit"] += total_profit
             daily_summary[date]["total_items"] += sum(item.get("quantity_sold", 0) for item in items)
+
+            # ✅ Collect today's and yesterday's quick stats
+            if date == today.strftime("%Y-%m-%d"):
+                today_sales += total_amount
+                today_profit += total_profit
+                today_items += sum(item.get("quantity_sold", 0) for item in items)
+
+            if date == yesterday.strftime("%Y-%m-%d"):
+                yesterday_sales += total_amount
 
             for item in items:
                 name = item.get("item_name") or "Unknown"
@@ -480,7 +492,30 @@ def get_sales_summary():
         ]
         top_products.sort(key=lambda x: x["quantity"], reverse=True)
 
-        result = {"dailySales": daily_sales, "topProducts": top_products}
+        # ✅ Get total products count
+        product_docs = collection_products.where("user_id", "==", user_id).stream()
+        total_products = sum(1 for _ in product_docs)
+
+        # ✅ Stats block for dashboard
+        stats = {
+            "total_products": total_products,
+            "today_sales": today_sales,
+            "today_profit": today_profit,
+            "today_items": today_items,
+            "yesterday_sales": yesterday_sales,
+            "growth_vs_yesterday": (
+                round(((today_sales - yesterday_sales) / yesterday_sales) * 100, 2)
+                if yesterday_sales > 0 else None
+            ),
+            "best_seller": top_products[0] if top_products else None
+        }
+
+        result = {
+            "dailySales": daily_sales,
+            "topProducts": top_products,
+            "stats": stats
+        }
+
         cache.set(cache_key, result)
         return jsonify(result), 200
     except Exception:
