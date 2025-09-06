@@ -45,9 +45,6 @@ const Dashboard = () => {
             .filter((d) => d.date.startsWith(today.slice(0, 7)))
             .reduce((sum, d) => sum + d.sales, 0)
         );
-        
-        // Format with commas
-        const formattedRevenueMonth = revenueMonth.toLocaleString();
 
         const bestSeller =
           topProducts.length > 0
@@ -95,47 +92,49 @@ const Dashboard = () => {
         </Typography>
 
         {/* ✅ Stats Section */}
-        <Grid item xs={12} sm={6} md={3}>
-  <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
-    <CardContent>
-      <Typography variant="h6">📦 Products</Typography>
-      <Typography variant="h4">{stats.totalProducts.toLocaleString()}</Typography>
-      <Typography color="text.secondary">In stock</Typography>
-    </CardContent>
-  </Card>
-</Grid>
+        <Grid container spacing={3} sx={{ mb: 4 }}>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
+              <CardContent>
+                <Typography variant="h6">📦 Products</Typography>
+                <Typography variant="h4">{stats.totalProducts.toLocaleString()}</Typography>
+                <Typography color="text.secondary">In stock</Typography>
+              </CardContent>
+            </Card>
+          </Grid>
 
-<Grid item xs={12} sm={6} md={3}>
-  <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
-    <CardContent>
-      <Typography variant="h6">💰 Sales Today</Typography>
-      <Typography variant="h4">₹{stats.salesToday.toLocaleString()}</Typography>
-      <Typography color="text.secondary">vs yesterday</Typography>
-    </CardContent>
-  </Card>
-</Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
+              <CardContent>
+                <Typography variant="h6">💰 Sales Today</Typography>
+                <Typography variant="h4">₹{stats.salesToday.toLocaleString()}</Typography>
+                <Typography color="text.secondary">vs yesterday</Typography>
+              </CardContent>
+            </Card>
+          </Grid>
 
-<Grid item xs={12} sm={6} md={3}>
-  <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
-    <CardContent>
-      <Typography variant="h6">📈 Revenue</Typography>
-      <Typography variant="h4">₹{stats.revenueMonth.toLocaleString()}</Typography>
-      <Typography color="text.secondary">This month</Typography>
-    </CardContent>
-  </Card>
-</Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
+              <CardContent>
+                <Typography variant="h6">📈 Revenue</Typography>
+                <Typography variant="h4">₹{stats.revenueMonth.toLocaleString()}</Typography>
+                <Typography color="text.secondary">This month</Typography>
+              </CardContent>
+            </Card>
+          </Grid>
 
-<Grid item xs={12} sm={6} md={3}>
-  <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
-    <CardContent>
-      <Typography variant="h6">🏆 Best Seller</Typography>
-      <Typography variant="h4">{stats.bestSeller.name}</Typography>
-      <Typography color="text.secondary">
-        {stats.bestSeller.quantity.toLocaleString()} units sold
-      </Typography>
-    </CardContent>
-  </Card>
-</Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
+              <CardContent>
+                <Typography variant="h6">🏆 Best Seller</Typography>
+                <Typography variant="h4">{stats.bestSeller.name}</Typography>
+                <Typography color="text.secondary">
+                  {stats.bestSeller.quantity.toLocaleString()} units sold
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
 
         {/* ✅ Action Buttons */}
         <Grid container spacing={3}>
@@ -230,11 +229,11 @@ const Dashboard = () => {
               recentSales.map((sale) => (
                 <Box key={sale.id} mb={1}>
                   <Typography variant="body2">
-                    ✔️ Sale recorded on {sale.date} — ₹{sale.total_amount}
+                    ✔️ Sale recorded on {sale.date} — ₹{sale.total_amount.toLocaleString()}
                   </Typography>
                   {sale.items.slice(0, 2).map((item, idx) => (
                     <Typography key={idx} variant="body2" color="text.secondary">
-                      • {item.item_name} ({item.quantity_sold} units)
+                      • {item.item_name} ({item.quantity_sold.toLocaleString()} units)
                     </Typography>
                   ))}
                 </Box>
