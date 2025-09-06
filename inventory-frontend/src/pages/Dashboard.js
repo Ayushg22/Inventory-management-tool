@@ -40,9 +40,11 @@ const Dashboard = () => {
         const todayData = dailySales.find((d) => d.date === today);
 
         const salesToday = todayData ? todayData.sales : 0;
-        const revenueMonth = dailySales
-          .filter((d) => d.date.startsWith(today.slice(0, 7)))
-          .reduce((sum, d) => sum + d.sales, 0);
+        const revenueMonth = Math.round(
+          dailySales
+            .filter((d) => d.date.startsWith(today.slice(0, 7)))
+            .reduce((sum, d) => sum + d.sales, 0)
+        );
 
         const bestSeller =
           topProducts.length > 0
